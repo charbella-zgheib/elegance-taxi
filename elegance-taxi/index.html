@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Elegance Taxi Lebanon</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      background: #f2f2f2;
+    }
+    section {
+      max-width: 1000px;
+      margin: 3rem auto;
+      padding: 2rem 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease-out;
+      position: relative;
+      z-index: 10;
+    }
+    section.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    section h2 {
+      font-size: 1.8rem;
+      border-left: 5px solid #f5c542;
+      padding-left: 1rem;
+      color: #222;
+    }
+    .feedback-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .feedback {
+      background: white;
+      padding: 1rem;
+      border-left: 5px solid #f5c542;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      font-style: italic;
+      color: #222;
+    }
+    .feedback strong { display: block; margin-top: 0.5rem; text-align: right; font-style: normal; color: #000; }
+
+    .partner-logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .partner-logos img {
+      max-height: 100px;
+      filter: grayscale(100%);
+      transition: 0.3s;
+      height: auto;
+      width: auto;
+    }
+    .partner-logos img:hover {
+      filter: grayscale(0%);
+      transform: scale(1.05);
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      color: white;
+      padding: 1rem 2rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 1rem;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    footer {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* HEADER with animated road background */
+    header {
+      position: relative;
+      height: 220px;
+      background: linear-gradient(to right, #000, #434343);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      text-align: center;
+      overflow: hidden;
+      z-index: 1;
+      margin-right: 0; /* full width since toolbar is hidden initially */
+    }
+    .header-content {
+      position: relative;
+      z-index: 5;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+    .header-content img {
+      max-width: 80px;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeIn 2s forwards;
+    }
+    .header-content h1 {
+      font-size: 2.5rem;
+      margin: 0.25rem 0;
+      color: #f5c542;
+      animation: slideIn 2s forwards;
+    }
+    .header-content p {
+      font-size: 1.1rem;
+      margin: 0;
+      color: #eee;
+      animation: slideIn 2s forwards;
+    }
+
+    /* Road and cars background placed at the bottom of header */
+    .road-background {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: #333;
+      border-top: 5px solid #f5c542;
+      border-bottom: 5px solid #f5c542;
+      overflow: hidden;
+      z-index: 2;
+    }
+    .road-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: repeating-linear-gradient(to right, #f5c542 0 20px, transparent 20px 40px);
+      transform: translateY(-50%);
+      z-index: 3;
+    }
+    .car {
+      position: absolute;
+      bottom: 15px;
+      width: 60px;
+      height: 30px;
+      background: #f5c542;
+      border-radius: 6px;
+      animation: drive 10s linear infinite;
+      z-index: 4;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .car::before, .car::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      width: 12px;
+      height: 12px;
+      background: black;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.2);
+    }
+    .car::before { left: 8px; }
+    .car::after { right: 8px; }
+    .car:nth-child(2) { bottom: 45px; background: white; animation-delay: 3.5s; }
+    .car:nth-child(3) { bottom: 75px; background: black; animation-delay: 6.5s; }
+    @keyframes drive {
+      0% { transform: translateX(-80px); }
+      100% { transform: translateX(110vw); }
+    }
+
+    /* Animations for header text */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Right toolbar toggle button */
+    #toolbar-toggle {
+      position: fixed;
+      top: 50%;
+      right: 0;
+      background: #f5c542;
+      border-radius: 8px 0 0 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+    #toolbar-toggle:hover,
+    #toolbar-toggle:focus {
+      background: #d1a829;
+      outline: none;
+    }
+    #toolbar-toggle svg {
+      width: 24px;
+      height: 24px;
+      fill: #333;
+    }
+
+    /* Toolbar panel */
+    #right-toolbar {
+      position: fixed;
+      top: 50%;
+      right: -220px;
+      transform: translateY(-50%);
+      width: 220px;
+      background: #111;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      border-radius: 8px 0 0 8px;
+      transition: right 0.3s ease;
+      z-index: 1000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #right-toolbar.show {
+      right: 0;
+    }
+    #right-toolbar ul {
+      list-style: none;
+      padding: 1rem;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #right-toolbar ul li a {
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      display: block;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+      text-decoration: none;
+    }
+    #right-toolbar ul li a:hover,
+    #right-toolbar ul li a:focus {
+      background: #f5c542;
+      color: #000;
+      outline: none;
+    }
+
+    /* Responsive: hide toolbar toggle and panel on very small screens */
+    @media (max-width: 400px) {
+      #toolbar-toggle {
+        display: none;
+      }
+      #right-toolbar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header role="banner" aria-label="Site header with logo and animated road background">
+    <div class="header-content">
+      <img src="ELEGAN.jpg" alt="Elegance Taxi Logo" />
+      <h1>Elegance Taxi</h1>
+      <p>For Elegant People • 15+ Years of Trusted Transportation in Lebanon</p>
+    </div>
+    <div class="road-background" aria-hidden="true">
+      <div class="road-line"></div>
+      <div class="car"></div>
+      <div class="car"></div>
+      <div class="car"></div>
+    </div>
+  </header>
+
+  <!-- Toolbar Toggle Button -->
+  <button id="toolbar-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="right-toolbar" title="Toggle Menu">
+    <!-- Hamburger icon SVG -->
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" role="img">
+      <rect y="4" width="24" height="2"></rect>
+      <rect y="11" width="24" height="2"></rect>
+      <rect y="18" width="24" height="2"></rect>
+    </svg>
+  </button>
+
+  <!-- Right Toolbar Panel -->
+  <nav id="right-toolbar" aria-label="Right side menu" hidden>
+    <ul>
+      <li><a href="#mission" tabindex="0">Mission</a></li>
+      <li><a href="#vision" tabindex="0">Vision</a></li>
+      <li><a href="#feedback" tabindex="0">Feedback</a></li>
+      <li><a href="#partners" tabindex="0">Partners</a></li>
+      <li><a href="#contact" tabindex="0">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="mission" tabindex="-1">
+      <h2>Our Mission</h2>
+      <p>To provide reliable, safe, and elegant transportation services across Lebanon. We aim to make every ride smooth, punctual, and stress-free. Our drivers offer a first-class experience to every customer.</p>
+    </section>
+
+    <section id="vision" tabindex="-1">
+      <h2>Our Vision</h2>
+      <p>To become Lebanon’s most trusted and innovative taxi service by blending tradition with modern comfort, offering top-tier service with style and punctuality.</p>
+    </section>
+
+    <section id="feedback" tabindex="-1">
+      <h2>What Our Clients Say</h2>
+      <div class="feedback-container">
+        <div class="feedback" role="article" aria-label="Feedback from Rami H.">
+          "Always on time, clean cars, and polite drivers. Highly recommend Elegance Taxi!"
+          <strong>– Rami H.</strong>
+        </div>
+        <div class="feedback" role="article" aria-label="Feedback from Sarah M.">
+          "15 years and they’re still the best in the business. Safe rides every time."
+          <strong>– Sarah M.</strong>
+        </div>
+        <div class="feedback" role="article" aria-label="Feedback from Karim D.">
+          "I use Elegance Taxi every week. They never disappoint."
+          <strong>– Karim D.</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="partners" tabindex="-1">
+      <h2>Trusted By</h2>
+      <div class="partner-logos" aria-label="Partner company logos">
+        <img src="sabis.png" alt="SABIS School Logo" />
+        <img src="pharmaline.webp" alt="Pharmaline Logo" />
+        <img src="georgehobeika.png" alt="George Hobeika Logo" />
+        <img src="zelt.png" alt="Zelt Hotel Logo" />
+      </div>
+    </section>
+
+    <section id="contact" tabindex="-1">
+      <h2>Contact Us</h2>
+      <p>Need a ride? We’re one click away — fast response and always available.</p>
+      <a
+        class="whatsapp-btn"
+        href="https://wa.me/9619333332"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with Elegance Taxi on WhatsApp"
+      >Chat with Us on WhatsApp</a>
+    </section>
+  </main>
+
+  <footer role="contentinfo">&copy; 2025 Elegance Taxi Lebanon. All rights reserved.</footer>
+
+  <script>
+    // Show sections on scroll for fade-in effect
+    const sections = document.querySelectorAll("section");
+    function reveal() {
+      sections.forEach(s => {
+        if (s.getBoundingClientRect().top < window.innerHeight - 100) {
+          s.classList.add("show");
+        }
+      });
+    }
+    window.addEventListener("scroll", reveal);
+    window.addEventListener("load", reveal);
+
+    // Toolbar toggle
+    const toolbarToggle = document.getElementById('toolbar-toggle');
+    const rightToolbar = document.getElementById('right-toolbar');
+
+    function toggleToolbar() {
+      const isShown = rightToolbar.classList.toggle('show');
+      rightToolbar.hidden = !isShown;
+      toolbarToggle.setAttribute('aria-expanded', isShown);
+      if (isShown) {
+        // Focus first link for keyboard users
+        rightToolbar.querySelector('a').focus();
+      } else {
+        toolbarToggle.focus();
+      }
+    }
+
+    toolbarToggle.addEventListener('click', toggleToolbar);
+    toolbarToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleToolbar();
+      }
+    });
+
+    // Close toolbar if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!rightToolbar.contains(e.target) && e.target !== toolbarToggle) {
+        if (rightToolbar.classList.contains('show')) {
+          toggleToolbar();
+        }
+      }
+    });
+
+    // Close toolbar on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && rightToolbar.classList.contains('show')) {
+        toggleToolbar();
+      }
+    });
+  </script>
+
+</body>
+</html>
